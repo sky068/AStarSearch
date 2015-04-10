@@ -17,9 +17,10 @@
 #include <list>
 #include <vector>
 #include <stdlib.h>
+#include <iostream>
 using namespace std;
 
-//底图最大值
+//地图最大值
 #define MAX_X 10
 #define MAX_Y 10
 
@@ -50,7 +51,6 @@ public:
     int g;
     int h;
     APoint *parent;
-    
 };
 
 class CAstar
@@ -64,13 +64,12 @@ public:
     CAstar();
     ~CAstar();
     APoint* findWay(APoint* beginPoint,APoint* endPoint,APoint*allpoints[MAX_X][MAX_Y]);
-    APoint* findWay(int beginX,int beginY,int endX,int endY);
+//    APoint* findWay(int beginX,int beginY,int endX,int endY);
 private:
     int getF(APoint *point);
     int getH(APoint *point);
     bool isInList(const vector<APoint*>& lis,APoint*point);
     vector<APoint*> getNeighboringPoint(APoint* point);
-    
 };
 
 

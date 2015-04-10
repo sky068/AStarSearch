@@ -89,18 +89,21 @@ APoint* CAstar::findWay(APoint *beginPoint, APoint *endPoint,APoint*allpoints[MA
     
     if (!_openList.empty())
     {
+        cout<<"---have found way---"<<endl;
         return _openList.at(0);
     }
+    
+    cout<<"---can not find way---"<<endl;
     
     return nullptr;
 }
 
-APoint* CAstar::findWay(int beginX, int beginY, int endX, int endY)
-{
-    
-    
-    return nullptr;
-}
+//APoint* CAstar::findWay(int beginX, int beginY, int endX, int endY)
+//{
+//    
+//    
+//    return nullptr;
+//}
 
 int CAstar::getF(APoint *point)
 {

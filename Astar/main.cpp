@@ -13,7 +13,7 @@ int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
     
-    //初始化底图矩阵
+    //初始化地图矩阵 0代表障碍
     int mapdata[MAX_X][MAX_Y] =
     {
         {1,1,1,0,1,1,1,1,1,1},
@@ -28,6 +28,7 @@ int main(int argc, const char * argv[]) {
         {1,1,1,1,1,0,1,1,1,1},
     };
     
+    //创建地图
     APoint* map[10][10];
     for (int i = 0; i<MAX_X; i++)
     {
@@ -44,14 +45,19 @@ int main(int argc, const char * argv[]) {
         }
     }
     
+    //开始寻路
     auto star = new CAstar();
     auto point = star->findWay(map[0][0], map[9][9], map);
-    do
+   
+    cout<<"---下面是路径点(倒序)---"<<endl;
+    while (point)
     {
         cout<<point->x<<","<<point->y<<endl;
         point = point->parent;
-    }while (point);
+    }
     
+    
+    delete star;
     
     return 0;
 }

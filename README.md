@@ -1,2 +1,2 @@
 # AStarSearch
-Star search way using C++
+使用C++实现的A星寻路，其实原理网上到处都有，不足之处还望大神支出。
