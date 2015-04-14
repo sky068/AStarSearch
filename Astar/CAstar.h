@@ -9,14 +9,15 @@
     F:路径评分 = g+h
     G:走一格格子的花销
     H:当前格子到目标格子的估算花销
+ 
+    上下左右走一格花销为10，斜着走一格花销为14，以方便计算
+    即格子宽高为10 对角线为14
  */
 #ifndef __Astar__CAstar__
 #define __Astar__CAstar__
 
 #include <stdio.h>
-#include <list>
 #include <vector>
-#include <stdlib.h>
 #include <iostream>
 using namespace std;
 
@@ -51,19 +52,29 @@ public:
     int g;
     int h;
     APoint *parent;
+    bool operator == (const APoint& po)
+    {
+        if (x == po.x && y == po.y)
+        {
+            return true;
+        }
+        return false;
+    }
+   
 };
 
 class CAstar
 {
-    vector<APoint*> _openList;
-    vector<APoint*> _closeList;
+    vector<APoint*> _openList;      //开放列表
+    vector<APoint*> _closeList;     //关闭列表
+    vector<APoint*> _neighbourList; //周边节点
     APoint* _endPoint;
     APoint* _curPoint;
-    APoint*_allPoints[MAX_X][MAX_Y];
+    vector< vector<APoint*> > _allPoints;
 public:
     CAstar();
     ~CAstar();
-    APoint* findWay(APoint* beginPoint,APoint* endPoint,APoint*allpoints[MAX_X][MAX_Y]);
+    APoint* findWay(APoint* beginPoint,APoint* endPoint,vector< vector<APoint*> >& allPoints);
 //    APoint* findWay(int beginX,int beginY,int endX,int endY);
 private:
     int getF(APoint *point);
@@ -71,7 +82,6 @@ private:
     bool isInList(const vector<APoint*>& lis,APoint*point);
     vector<APoint*> getNeighboringPoint(APoint* point);
 };
-
 
 
 

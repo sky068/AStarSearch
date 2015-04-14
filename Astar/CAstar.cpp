@@ -23,10 +23,10 @@ APoint::APoint():x(0)
                 ,parent(nullptr)
                 ,type(AType::ATYPE_UNKNOWN)
 {
-    
 }
 APoint::~APoint()
-{}
+{
+}
 
 
 #pragma mark------CAstar-------
@@ -35,63 +35,84 @@ CAstar::CAstar():_endPoint(nullptr)
                 ,_curPoint(nullptr)
 {
 }
+
 CAstar::~CAstar()
 {
+    _openList.clear();
+    _closeList.clear();
+    _neighbourList.clear();
+    _allPoints.clear();
 }
 
-APoint* CAstar::findWay(APoint *beginPoint, APoint *endPoint,APoint*allpoints[MAX_X][MAX_Y])
+APoint* CAstar::findWay(APoint *beginPoint, APoint *endPoint,vector< vector<APoint*> >& allPoints)
 {
+    //传递地图
+    _allPoints = allPoints;
+    
     _endPoint = endPoint;
-    for (int i=0; i<MAX_X; i++)
+
+    if (_endPoint->type == AType::ATYPE_BARRIER)
     {
-        for (int j = 0; j<MAX_Y; j++)
-        {
-            _allPoints[i][j] = allpoints[i][j];
-        }
+        cout<<"终点是障碍"<<endl;
+        return nullptr;
     }
+    if (*_endPoint == *beginPoint)
+    {
+        cout<<"起始点相同"<<endl;
+        return nullptr;
+    }
+    
     _openList.push_back(beginPoint);
     beginPoint->type = AType::ATYPE_OPENED;
-    
-    //如果开放列表不为空并且目标节点不在开放列表里
-    while (!_openList.empty() && _endPoint->type!=AType::ATYPE_OPENED)
+    beginPoint->f = getF(beginPoint);
+    //---------
+    do
     {
-        _curPoint = _openList.at(0);
-
-        //获取当前节点周边的四个点 已经排好序了
+        //获取最小值的节点
+        _curPoint = _openList[0];
+        _openList.erase(_openList.begin());
+        _curPoint->type = AType::ATYPE_CLOSED;
+        _closeList.push_back(_curPoint);
+        
+        if (*_curPoint == *_endPoint)
+        {
+            cout<<"have find way"<<endl;
+            return _curPoint;
+        }
+        //获取相邻的节点
         vector<APoint*> neVec = getNeighboringPoint(_curPoint);
         for (int i = 0; i<neVec.size(); i++)
         {
-            APoint *po = neVec.at(i);
-            if (po->type == AType::ATYPE_CLOSED || po->type == AType::ATYPE_BARRIER)
+            auto tmpoint = neVec[i];
+            if (tmpoint->type == AType::ATYPE_CLOSED)
             {
                 continue;
             }
-            
-            //从open列表移除当前节点，加入到关闭列表里
-            _openList.erase(_openList.begin());
-            _curPoint->type = AType::ATYPE_CLOSED;
-            _closeList.push_back(_curPoint);
-            
-            //选择一个没在开放列表里的F值最小的加到开放列表里
-            if(po->type != AType::ATYPE_OPENED)
+            //是否在开放列表里
+            if (tmpoint->type != AType::ATYPE_OPENED)
             {
-                po->parent = _curPoint;
-                po->type = AType::ATYPE_OPENED;
-                _openList.push_back(po);
-                break;
+                tmpoint->parent = _curPoint;
+                tmpoint->g = _curPoint->g + 10;
+                //计算H值
+                tmpoint->h = getH(tmpoint);
+                //添加到开放列表里
+                _openList.push_back(tmpoint);
+                tmpoint->type = AType::ATYPE_OPENED;
             }
-        }        
-    }
-//    if (_endPoint->type == AType::ATYPE_OPENED)
-//    {
-//        return _endPoint;
-//    }
+            else
+            {
+                //已经在开放列表里
+                if (tmpoint->h < _curPoint->h)
+                {
+                    tmpoint->parent = _curPoint;
+                    tmpoint->g = _curPoint->g + 10;
+                }
+            }
+        }
+        sort(_openList.begin(), _openList.end(), mySort);
+        
+    } while (_openList.size()>0);
     
-    if (!_openList.empty())
-    {
-        cout<<"---have found way---"<<endl;
-        return _openList.at(0);
-    }
     
     cout<<"---can not find way---"<<endl;
     
@@ -129,35 +150,41 @@ bool CAstar::isInList(const vector<APoint *>& lis, APoint *point)
 
 vector<APoint*> CAstar::getNeighboringPoint(APoint *point)
 {
-    vector<APoint*> tmpVec;
-    if (point->y < MAX_Y-1)
-    {
-        tmpVec.push_back(_allPoints[point->x][point->y+1]);
-        _allPoints[point->x][point->y+1]->g = point->g+10;
-        _allPoints[point->x][point->y+1]->f = getF(_allPoints[point->x][point->y+1]);
-    }
-    if (point->y >0)
-    {
-        tmpVec.push_back(_allPoints[point->x][point->y-1]);
-        _allPoints[point->x][point->y-1]->g = point->g+10;
-        _allPoints[point->x][point->y-1]->f = getF( _allPoints[point->x][point->y-1]);
-    }
+    _neighbourList.clear();
+//    cout<<"nei size:"<<_neighbourList.size()<<endl;
     if (point->x < MAX_X-1)
     {
-        tmpVec.push_back(_allPoints[point->x+1][point->y]);
-        _allPoints[point->x+1][point->y]->g = point->g+10;
-        _allPoints[point->x+1][point->y]->f = getF(_allPoints[point->x+1][point->y]);
+        if (_allPoints[point->x+1][point->y]->type != AType::ATYPE_BARRIER)
+        {
+            _neighbourList.push_back(_allPoints[point->x+1][point->y]);
+        }
     }
     if (point->x >0)
     {
-        tmpVec.push_back(_allPoints[point->x-1][point->y]);
-        _allPoints[point->x-1][point->y]->g = point->g+10;
-        _allPoints[point->x-1][point->y]->f = getF(_allPoints[point->x-1][point->y]);
+        if (_allPoints[point->x-1][point->y]->type != AType::ATYPE_BARRIER)
+        {
+            _neighbourList.push_back(_allPoints[point->x-1][point->y]);
+        }
     }
+    if (point->y < MAX_Y-1)
+    {
+        if (_allPoints[point->x][point->y+1]->type != AType::ATYPE_BARRIER)
+        {
+            _neighbourList.push_back(_allPoints[point->x][point->y+1]);
+        }
+    }
+    if (point->y >0)
+    {
+        if (_allPoints[point->x][point->y-1]->type != AType::ATYPE_BARRIER)
+        {
+            _neighbourList.push_back(_allPoints[point->x][point->y-1]);
+        }
+    }
+   
     //排序 f值最小的排到最前面
-    sort(tmpVec.begin(), tmpVec.end(), mySort);
+//    sort(_neighbourList.begin(), _neighbourList.end(), mySort);
     
-    return tmpVec;
+    return _neighbourList;
 }
 
 
