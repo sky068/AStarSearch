@@ -137,18 +137,6 @@ int CAstar::getH(APoint *point)
     return (abs(_endPoint->y - point->y) + abs(_endPoint->x - point->x))*10;
 }
 
-bool CAstar::isInList(const vector<APoint *>& lis, APoint *point)
-{
-    for (int i = 0; i<lis.size(); i++)
-    {
-        if (lis.at(i)==point)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 vector<APoint*> CAstar::getNeighboringPoint(APoint *point)
 {
     _neighbourList.clear();

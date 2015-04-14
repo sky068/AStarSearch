@@ -32,13 +32,6 @@ enum class AType
     ATYPE_OPENED,
     ATYPE_BARRIER   //障碍
 };
-enum class ADir
-{
-    ADIR_UP,
-    ADIR_DOWN,
-    ADIR_LEFT,
-    ADIR_RIGHT
-};
 
 class APoint
 {
@@ -79,7 +72,6 @@ public:
 private:
     int getF(APoint *point);
     int getH(APoint *point);
-    bool isInList(const vector<APoint*>& lis,APoint*point);
     vector<APoint*> getNeighboringPoint(APoint* point);
 };
 
