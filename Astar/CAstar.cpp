@@ -109,6 +109,7 @@ APoint* CAstar::findWay(APoint *beginPoint, APoint *endPoint,vector< vector<APoi
                 }
             }
         }
+        //排序 F值最小的排在前面
         sort(_openList.begin(), _openList.end(), mySort);
         
     } while (_openList.size()>0);
@@ -180,9 +181,6 @@ vector<APoint*> CAstar::getNeighboringPoint(APoint *point)
             _neighbourList.push_back(_allPoints[point->x][point->y-1]);
         }
     }
-   
-    //排序 f值最小的排到最前面
-//    sort(_neighbourList.begin(), _neighbourList.end(), mySort);
     
     return _neighbourList;
 }
